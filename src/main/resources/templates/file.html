@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" type="text/css" media="all" th:href="@{/css/bootstrap.min.css}">
+
+    <title>Files</title>
+</head>
+<body class="p-3 mb-2 bg-light text-black">
+<div class="container">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light rounded">
+        <span class="navbar-brand h2" style="color: rgba(4, 150, 255, 0.9)">Super Duper Cloud Storage</span>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample09" aria-controls="navbarsExample09" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarsExample09">
+            <div class="navbar-nav mr-auto"></div>
+            <div class="form-inline my-2 my-md-0">
+                <form th:action="@{/logout}" method="post">
+                    <input type="submit" class="btn btn-secondary" value="Logout">
+                </form>
+            </div>
+        </div>
+    </nav>
+</div>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/dashboard}">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" th:href="@{/file}">Files</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/note}" >Notes</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/credential}">Credential</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/user}">Users</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="container justify-content-center" >
+    <div class="alert alert-success fill-parent" th:if="${success}">
+        <h1 class="display-5">Success</h1>
+        <span>Your changes were successfully saved. Click <a>here</a> to continue.</span>
+    </div>
+    <div class="alert alert-danger fill-parent" th:if="${changeError}">
+        <h1 class="display-5">Error</h1>
+        <span>Your changes were not saved. Click <a>here</a> to continue.</span>
+    </div>
+    <div class="alert alert-danger fill-parent" th:if="${error}">
+        <h1 class="display-5">Error</h1>
+        <span th:text="${errorMessage}"></span>
+        <span>Click <a>here</a> to continue.</span>
+    </div>
+</div>
+
+<form th:action="@{/file/upload}" enctype="multipart/form-data" method="POST">
+    <div class="container">
+        <div class="row" style="margin: 1em;">
+            <div class="col-sm-2">
+                <label for="fileUpload">Upload a New File:</label>
+            </div>
+            <div class="col-sm-6">
+                <input type="file" class="form-control-file" id="fileUpload" name="fileUpload">
+            </div>
+            <div class="col-sm-4">
+                <button type="submit" class="btn btn-dark">Upload</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="table-responsive">
+                <table class="table table-striped table-sm table-bordered">
+                    <thead>
+                    <tr>
+                        <th>  </th>
+                        <th>Filename</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="file : ${files}">
+                        <td>
+                            <form th:action="@{/file/delete/{id}(id=${file.fileId})}" method="post">
+                                <a th:href="@{/file/download/{id}(id=${file.fileId})}" class="btn btn-success" target="_blank">View</a>
+                                <input type="submit" class="btn btn-danger" value="Delete" />
+                            </form>
+                        </td>
+                        <td th:text="${file.filename}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="js/jquery-slim.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/popper.min.js"></script>
+
+</body>
+</html>
