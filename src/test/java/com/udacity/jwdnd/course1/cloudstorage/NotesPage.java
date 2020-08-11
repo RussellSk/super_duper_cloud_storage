@@ -1,12 +1,16 @@
 package com.udacity.jwdnd.course1.cloudstorage;
 
 import com.udacity.jwdnd.course1.cloudstorage.model.Note;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 public class NotesPage {
+
     @FindBy(css = "#createNotetitle")
     private WebElement notetitle;
 
@@ -24,18 +28,6 @@ public class NotesPage {
 
     @FindBy(className = "noteDescription")
     private WebElement resultNoteDescription;
-
-    @FindBy(className = "noteEditButton")
-    private WebElement noteEditButton;
-
-    @FindBy(css = "#notetitle")
-    private WebElement noteEditTitle;
-
-    @FindBy(css = "#notedescription")
-    private WebElement noteEditDescription;
-
-    @FindBy(css = "#noteEditModalButton")
-    private WebElement noteEditModalButton;
 
     public NotesPage(WebDriver webDriver) {
         PageFactory.initElements(webDriver, this);
@@ -55,10 +47,4 @@ public class NotesPage {
         return result;
     }
 
-    public void editNote(String newTitle, String newDescription) {
-        this.noteEditButton.click();
-        this.noteEditTitle.sendKeys(newTitle);
-        this.noteEditDescription.sendKeys(newDescription);
-        this.noteEditModalButton.click();
-    }
 }

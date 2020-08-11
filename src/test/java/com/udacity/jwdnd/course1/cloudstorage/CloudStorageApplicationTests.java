@@ -4,15 +4,19 @@ import com.udacity.jwdnd.course1.cloudstorage.model.Note;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 
 import java.util.concurrent.TimeUnit;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class CloudStorageApplicationTests {
 
 	private final String username = "usernametest";
@@ -22,6 +26,7 @@ class CloudStorageApplicationTests {
 	private int port;
 
 	private WebDriver driver;
+	private WebDriverWait webDriverWait;
 
 	@BeforeAll
 	static void beforeAll() {
@@ -31,6 +36,7 @@ class CloudStorageApplicationTests {
 	@BeforeEach
 	public void beforeEach() {
 		this.driver = new ChromeDriver();
+		this.webDriverWait = new WebDriverWait(driver, 30);
 
 		driver.get("http://localhost:" + this.port + "/signup");
 		SignupPage signupPage = new SignupPage(driver);
@@ -97,12 +103,13 @@ class CloudStorageApplicationTests {
 	}
 
 	@Test
+	@Order(1)
 	public void testCreateNote() {
 		String noteTitle = "Cloud Note Test";
 		String noteDescription = "Cloud Note Description Test";
 
 		driver.get("http://localhost:" + this.port + "/note");
-		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+		driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
 
 		NotesPage notesPage = new NotesPage(driver);
 		notesPage.createNote(noteTitle, noteDescription);
@@ -113,23 +120,44 @@ class CloudStorageApplicationTests {
 	}
 
 	@Test
+	@Order(2)
 	public void testEditNote() {
 		String noteTitle = "Test Edit Title";
 		String noteDescription = "Test Edit description";
 
-		// Create New Note
 		driver.get("http://localhost:" + this.port + "/note");
-		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+
+		webDriverWait.until(ExpectedConditions.elementToBeClickable(By.className("noteEditButton"))).click();
+
+		WebElement elementTitle = driver.findElement(By.id("notetitle"));
+		elementTitle.clear();
+		WebElement elementDescription = driver.findElement(By.id("notedescription"));
+		elementDescription.clear();
+
+		webDriverWait.until(ExpectedConditions.elementToBeClickable(elementTitle)).sendKeys(noteTitle);
+		webDriverWait.until(ExpectedConditions.elementToBeClickable(elementDescription)).sendKeys(noteDescription);
+		webDriverWait.until(ExpectedConditions.elementToBeClickable(By.id("noteEditModalButton"))).click();
+
 		NotesPage notesPage = new NotesPage(driver);
-		notesPage.createNote("Cloud Note Test 1", "Cloud Note Description Test");
-
-		// Edit existing Note
-		//driver.get("http://localhost:" + this.port + "/note");
-		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-		notesPage.editNote(noteTitle, noteDescription);
-
 		Note note = notesPage.getFirstNote();
+
 		Assertions.assertEquals(noteTitle, note.getNotetitle());
 		Assertions.assertEquals(noteDescription, note.getNotedescription());
+	}
+
+	@Test
+	@Order(3)
+	public void testDeleteNote() {
+		driver.get("http://localhost:" + this.port + "/note");
+
+		WebElement elementDeleteButton = driver.findElement(By.className("noteDeleteButton"));
+		elementDeleteButton.click();
+
+		Assertions.assertThrows(NoSuchElementException.class, () -> {
+			NotesPage notesPage = new NotesPage(driver);
+			Note note = notesPage.getFirstNote();
+		});
+
 	}
 }

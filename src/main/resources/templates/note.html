@@ -92,7 +92,7 @@
                         <td>
                             <form th:action="@{/note/delete/{id}(id=${note.noteid})}" method="post">
                                 <a th:href="@{/note/edit/{id}(id=${note.noteid})}" class="btn btn-success noteEditButton">Edit</a>
-                                <input type="submit" class="btn btn-danger" value="Delete" />
+                                    <input type="submit" class="btn btn-danger noteDeleteButton" value="Delete" />
                             </form>
                         </td>
                         <td th:text="${note.notetitle}" class="noteTitle"></td>
