@@ -26,8 +26,9 @@ public class NoteController {
     }
 
     @GetMapping()
-    public String getNotes(Model model) {
-        model.addAttribute("notes", noteMapper.getNotes());
+    public String getNotes(Model model, Principal principal) {
+        User user = userMapper.getUser(principal.getName());
+        model.addAttribute("notes", noteMapper.getNotes(user.getUserid()));
         return "note";
     }
 
@@ -56,16 +57,18 @@ public class NoteController {
     }
 
     @GetMapping("/edit/{id}")
-    public RedirectView editView(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes) {
-        redirectAttributes.addFlashAttribute("editnote", noteMapper.getNote(id));
+    public RedirectView editView(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes, Principal principal) {
+        User user = userMapper.getUser(principal.getName());
+        redirectAttributes.addFlashAttribute("editnote", noteMapper.getNote(id, user.getUserid()));
         return new RedirectView("/note");
     }
 
     @PostMapping("/edit/{id}")
-    public RedirectView updateNote(@PathVariable("id") Integer id, Note postedNote, RedirectAttributes redirectAttributes) {
+    public RedirectView updateNote(@PathVariable("id") Integer id, Note postedNote, RedirectAttributes redirectAttributes, Principal principal) {
         try {
+            User user = userMapper.getUser(principal.getName());
             postedNote.setNoteid(id);
-            noteMapper.update(postedNote);
+            noteMapper.update(postedNote, user.getUserid());
             redirectAttributes.addFlashAttribute("success", true);
         } catch (Exception ex) {
             redirectAttributes.addFlashAttribute("changeError", true);
@@ -77,9 +80,10 @@ public class NoteController {
     }
 
     @PostMapping("/delete/{id}")
-    public RedirectView deleteNote(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes) {
+    public RedirectView deleteNote(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes, Principal principal) {
         try {
-            noteMapper.delete(id);
+            User user = userMapper.getUser(principal.getName());
+            noteMapper.delete(id, user.getUserid());
             redirectAttributes.addFlashAttribute("success", true);
         } catch (Exception ex) {
             redirectAttributes.addFlashAttribute("error", true);

@@ -30,23 +30,33 @@ public class FileController {
     }
 
     @GetMapping()
-    public String filesView(Model model) {
-        model.addAttribute("files", fileMapper.files());
+    public String filesView(Model model, Principal principal) {
+        User user = userMapper.getUser(principal.getName());
+        model.addAttribute("files", fileMapper.files(user.getUserid()));
         return "file";
     }
 
     @GetMapping("/download/{id}")
     @ResponseBody
-    public ResponseEntity<byte[]> downloadFile(@PathVariable Integer id) {
-        File file = fileMapper.findById(id);
+    public ResponseEntity<byte[]> downloadFile(@PathVariable Integer id, Principal principal) {
+        User user = userMapper.getUser(principal.getName());
+        File file = fileMapper.findById(id, user.getUserid());
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,	"attachment; filename=\"" + file.getFilename() + "\"").body(file.getFiledata());
-
     }
 
     @PostMapping("/upload")
     public RedirectView uploadFile(@RequestParam("fileUpload")MultipartFile uploadingFile, RedirectAttributes redirectAttributes, Principal principal) {
         try {
+
+            if (uploadingFile.isEmpty()) {
+                throw new Exception("File input is empty");
+            }
+
             User user = userMapper.getUser(principal.getName());
+
+            if (fileMapper.findByFilename(uploadingFile.getOriginalFilename(), user.getUserid()) != null) {
+                throw new Exception("User: " + user.getUsername() + " can not upload the same file (" + uploadingFile.getOriginalFilename() + ") twice. Please select another file and try again.");
+            }
 
             File file = new File();
             file.setFiledata(uploadingFile.getBytes());
@@ -66,9 +76,10 @@ public class FileController {
     }
 
     @PostMapping("/delete/{id}")
-    public RedirectView deleteFile(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes) {
+    public RedirectView deleteFile(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes, Principal principal) {
         try {
-            fileMapper.delete(id);
+            User user = userMapper.getUser(principal.getName());
+            fileMapper.delete(id, user.getUserid());
             redirectAttributes.addFlashAttribute("success", true);
         } catch (Exception ex) {
             redirectAttributes.addFlashAttribute("error", true);

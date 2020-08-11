@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
 @Controller
 @RequestMapping("/user")
@@ -24,11 +26,16 @@ public class UserController {
         return "user";
     }
 
-    @PostMapping("/user/delete/{id}")
-    public String deleteUser(@PathVariable Integer id, Model model) {
-        userMapper.delete(id);
-        model.addAttribute("users", userMapper.getUsers());
-        model.addAttribute("success", true);
-        return "user";
+    @PostMapping("/delete/{id}")
+    public RedirectView deleteUser(@PathVariable Integer id, Model model, RedirectAttributes redirectAttributes) {
+        try {
+            userMapper.delete(id);
+            redirectAttributes.addFlashAttribute("success", true);
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("error", true);
+            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+        }
+
+        return new RedirectView("/user");
     }
 }

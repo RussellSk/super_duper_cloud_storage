@@ -64,21 +64,23 @@ public class CredentialsController {
     }
 
     @GetMapping("/edit/{id}")
-    public RedirectView editView(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes) {
-        Credential currentCredential = credentialMapper.findById(id);
+    public RedirectView editView(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes, Principal principal) {
+        User user = userMapper.getUser(principal.getName());
+        Credential currentCredential = credentialMapper.findById(id, user.getUserid());
         currentCredential.setPassword(encryptionService.decryptValue(currentCredential.getPassword(), currentCredential.getKey()));
         redirectAttributes.addFlashAttribute("editcredential", currentCredential);
         return new RedirectView("/credential");
     }
 
     @PostMapping("/edit/{id}")
-    public RedirectView updateNote(@PathVariable("id") Integer id, Credential postedCredential, RedirectAttributes redirectAttributes) {
+    public RedirectView updateNote(@PathVariable("id") Integer id, Credential postedCredential, RedirectAttributes redirectAttributes, Principal principal) {
         try {
-            Credential currentCredential = credentialMapper.findById(id);
+            User user = userMapper.getUser(principal.getName());
+            Credential currentCredential = credentialMapper.findById(id, user.getUserid());
 
             postedCredential.setCredentialid(id);
             postedCredential.setPassword(encryptionService.encryptValue(postedCredential.getPassword(), currentCredential.getKey()));
-            credentialMapper.update(postedCredential);
+            credentialMapper.update(postedCredential, user.getUserid());
 
             redirectAttributes.addFlashAttribute("success", true);
         } catch (Exception ex) {
@@ -91,15 +93,17 @@ public class CredentialsController {
     }
 
     @GetMapping()
-    public String credentialView(Model model) {
-        model.addAttribute("credentials", credentialMapper.credentials());
+    public String credentialView(Model model, Principal principal) {
+        User user = userMapper.getUser(principal.getName());
+        model.addAttribute("credentials", credentialMapper.credentials(user.getUserid()));
         return "credential";
     }
 
     @PostMapping("/delete/{id}")
-    public RedirectView deleteNote(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes) {
+    public RedirectView deleteNote(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes, Principal principal) {
         try {
-            credentialMapper.delete(id);
+            User user = userMapper.getUser(principal.getName());
+            credentialMapper.delete(id, user.getUserid());
             redirectAttributes.addFlashAttribute("success", true);
         } catch (Exception ex) {
             redirectAttributes.addFlashAttribute("error", true);
