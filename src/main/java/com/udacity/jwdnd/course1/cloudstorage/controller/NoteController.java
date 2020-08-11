@@ -68,7 +68,8 @@ public class NoteController {
         try {
             User user = userMapper.getUser(principal.getName());
             postedNote.setNoteid(id);
-            noteMapper.update(postedNote, user.getUserid());
+            postedNote.setUserid(user.getUserid());
+            noteMapper.update(postedNote);
             redirectAttributes.addFlashAttribute("success", true);
         } catch (Exception ex) {
             redirectAttributes.addFlashAttribute("changeError", true);

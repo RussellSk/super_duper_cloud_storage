@@ -21,7 +21,7 @@ public interface CredentialMapper {
     public int countCredential(Integer userid);
 
     @Update("UPDATE CREDENTIALS SET url = #{url}, username = #{username}, password = #{password} WHERE credentialid = #{credentialid} AND userid = #{userid}")
-    public int update(Credential credential, Integer userid);
+    public int update(Credential credential);
 
     @Delete("DELETE FROM CREDENTIALS WHERE credentialid = #{id} AND userid = #{userid}")
     public int delete(Integer id, Integer userid);

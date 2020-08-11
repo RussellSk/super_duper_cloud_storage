@@ -79,8 +79,9 @@ public class CredentialsController {
             Credential currentCredential = credentialMapper.findById(id, user.getUserid());
 
             postedCredential.setCredentialid(id);
+            postedCredential.setUserid(user.getUserid());
             postedCredential.setPassword(encryptionService.encryptValue(postedCredential.getPassword(), currentCredential.getKey()));
-            credentialMapper.update(postedCredential, user.getUserid());
+            credentialMapper.update(postedCredential);
 
             redirectAttributes.addFlashAttribute("success", true);
         } catch (Exception ex) {

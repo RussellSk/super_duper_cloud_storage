@@ -3,10 +3,14 @@ package com.udacity.jwdnd.course1.cloudstorage;
 import com.udacity.jwdnd.course1.cloudstorage.model.Note;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+
+import java.util.concurrent.TimeUnit;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class CloudStorageApplicationTests {
@@ -98,8 +102,31 @@ class CloudStorageApplicationTests {
 		String noteDescription = "Cloud Note Description Test";
 
 		driver.get("http://localhost:" + this.port + "/note");
+		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+
 		NotesPage notesPage = new NotesPage(driver);
 		notesPage.createNote(noteTitle, noteDescription);
+
+		Note note = notesPage.getFirstNote();
+		Assertions.assertEquals(noteTitle, note.getNotetitle());
+		Assertions.assertEquals(noteDescription, note.getNotedescription());
+	}
+
+	@Test
+	public void testEditNote() {
+		String noteTitle = "Test Edit Title";
+		String noteDescription = "Test Edit description";
+
+		// Create New Note
+		driver.get("http://localhost:" + this.port + "/note");
+		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+		NotesPage notesPage = new NotesPage(driver);
+		notesPage.createNote("Cloud Note Test 1", "Cloud Note Description Test");
+
+		// Edit existing Note
+		//driver.get("http://localhost:" + this.port + "/note");
+		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+		notesPage.editNote(noteTitle, noteDescription);
 
 		Note note = notesPage.getFirstNote();
 		Assertions.assertEquals(noteTitle, note.getNotetitle());

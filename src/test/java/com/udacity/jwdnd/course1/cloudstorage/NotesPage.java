@@ -25,6 +25,18 @@ public class NotesPage {
     @FindBy(className = "noteDescription")
     private WebElement resultNoteDescription;
 
+    @FindBy(className = "noteEditButton")
+    private WebElement noteEditButton;
+
+    @FindBy(css = "#notetitle")
+    private WebElement noteEditTitle;
+
+    @FindBy(css = "#notedescription")
+    private WebElement noteEditDescription;
+
+    @FindBy(css = "#noteEditModalButton")
+    private WebElement noteEditModalButton;
+
     public NotesPage(WebDriver webDriver) {
         PageFactory.initElements(webDriver, this);
     }
@@ -41,5 +53,12 @@ public class NotesPage {
         result.setNotetitle(resultNoteTitle.getText());
         result.setNotedescription(resultNoteDescription.getText());
         return result;
+    }
+
+    public void editNote(String newTitle, String newDescription) {
+        this.noteEditButton.click();
+        this.noteEditTitle.sendKeys(newTitle);
+        this.noteEditDescription.sendKeys(newDescription);
+        this.noteEditModalButton.click();
     }
 }
